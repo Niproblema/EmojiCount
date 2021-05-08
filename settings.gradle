@@ -1,0 +1,2 @@
+rootProject.name = "EmojiCount"
+include ':app'
