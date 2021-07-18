@@ -3,6 +3,7 @@
     package="com.niproblema.emojicount">
 
     <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <application
         android:allowBackup="true"

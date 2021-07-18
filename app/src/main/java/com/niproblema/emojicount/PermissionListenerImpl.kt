@@ -6,18 +6,25 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 
-class PermissionListenerImpl : PermissionListener {
+class PermissionListenerImpl(
+    onAccepted: (PermissionGrantedResponse?) -> Unit,
+    onDenied: (PermissionDeniedResponse?) -> Unit,
+    onShown: (PermissionRequest?, PermissionToken?) -> Unit
+) : PermissionListener {
 
+    private val onAccept = onAccepted
+    private val onDeny = onDenied
+    private val onShow = onShown
 
     override fun onPermissionGranted(p0: PermissionGrantedResponse?) {
-        TODO("Not yet implemented")
+        onAccept(p0)
     }
 
     override fun onPermissionDenied(p0: PermissionDeniedResponse?) {
-        TODO("Not yet implemented")
+        onDeny(p0)
     }
 
     override fun onPermissionRationaleShouldBeShown(p0: PermissionRequest?, p1: PermissionToken?) {
-        TODO("Not yet implemented")
+        onShow(p0, p1);
     }
 }
