@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">EmojiCount</string>
-    <string name="chat_selection_textView">Select chat:</string>
-    <string name="conversation_count">Count</string>
+    <string name="message_count_label_text">Message count - </string>
+    <string name="conversation_count_button_text">Count</string>
 </resources>
