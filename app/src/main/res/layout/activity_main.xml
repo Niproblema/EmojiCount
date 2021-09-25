@@ -6,21 +6,12 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-
-    <TextView
-        android:id="@+id/chat_selection_textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        android:padding="6dp"
-        android:text="@string/chat_selection_textView"
-        android:textSize="20sp" />
-
     <LinearLayout
         android:id="@+id/chat_selection_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginVertical="10dp">
 
         <Spinner
             android:id="@+id/chat_selection_spinner"
@@ -36,28 +27,34 @@
             android:id="@+id/reload_conversations_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-
-            android:layout_marginTop="3dp"
             android:layout_marginEnd="15dp"
-            android:layout_marginBottom="3dp"
-            android:layout_weight="4"
-            android:text="@" />
+            android:layout_weight="3"
+            android:text="@string/conversation_count" />
 
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/chat_selection_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="6dp"
+        android:padding="6dp"
+        android:text="@string/chat_selection_textView"
+        android:textSize="20sp" />
 
     <LinearLayout
         android:id="@+id/chat_analysis_panel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
+        android:layout_marginVertical="10dp"
         android:orientation="horizontal">
 
-        <EditText
+        <androidx.emoji2.widget.EmojiEditText
             android:id="@+id/analysis_panel_1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginVertical="10dp"
+
             android:layout_marginLeft="10dp"
             android:layout_marginRight="5dp"
             android:layout_weight="1"
@@ -69,13 +66,13 @@
             android:outlineProvider="none"
             android:scrollbars="vertical"
             android:background="@drawable/rectangle"
-            android:padding="6dp" />
+            android:padding="6dp"
+            android:focusable="false" />
 
-        <EditText
+        <androidx.emoji2.widget.EmojiEditText
             android:id="@+id/analysis_panel_2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginVertical="10dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="10dp"
             android:layout_weight="1"
@@ -87,7 +84,8 @@
             android:outlineProvider="none"
             android:scrollbars="vertical"
             android:background="@drawable/rectangle"
-            android:padding="6dp"/>
+            android:padding="6dp"
+            android:focusable="false"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -1,18 +1,31 @@
 package com.niproblema.emojicount
 
+import android.annotation.SuppressLint
+import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract.PhoneLookup
 import android.provider.Telephony
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.provider.FontRequest
+import androidx.core.text.getSpans
 import androidx.core.view.get
+import androidx.emoji2.bundled.BundledEmojiCompatConfig
+import androidx.emoji2.text.EmojiCompat
+import androidx.emoji2.text.FontRequestEmojiCompatConfig
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener
 import com.karumi.dexter.listener.single.PermissionListener
 import java.lang.StringBuilder
-
+import androidx.emoji2.text.EmojiSpan
+import androidx.emoji2.widget.EmojiEditText
 
 class MainActivity : AppCompatActivity() {
     // Chat spinner
@@ -27,11 +40,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var customPermissionListener: PermissionListener
 
     // Panels
-    lateinit var analysisPanel1: EditText
-    lateinit var analysisPanel2: EditText
+    lateinit var analysisPanel1: EmojiEditText
+    lateinit var analysisPanel2: EmojiEditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val config = BundledEmojiCompatConfig(this)
+        EmojiCompat.init(config)
+
         setContentView(R.layout.activity_main)
 
         chatSelection = findViewById(R.id.chat_selection_spinner)
@@ -47,7 +64,8 @@ class MainActivity : AppCompatActivity() {
             ) {
                 val name = threadIDs.getOrNull(position)
                 if (!name.isNullOrEmpty()) {
-                    analyseConversation(name)
+                    val result = analyseConversation(name)
+                    populateResultView(result)
                 }
             }
         }
@@ -86,6 +104,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    @SuppressLint("Range")
     private fun reloadChats(manual: Boolean) {
         selectionAdapter.clear()
         threadIDs.clear()
@@ -116,7 +135,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun analyseConversation(threadID: String) {
+    @SuppressLint("RestrictedApi", "Range")
+    private fun analyseConversation(threadID: String) : List<EmojiEntry> {
         val dataCursor = contentResolver.query(
             Uri.parse("content://sms/conversations/" + threadID),   // TODO: add MMS also
             arrayOf(Telephony.Sms.Inbox.BODY, Telephony.Sms.Inbox.TYPE),
@@ -153,8 +173,53 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Could not load conversation data.", Toast.LENGTH_LONG).show()
         }
 
-        println("Inbound: "+ inbound.count())
-        println("Outbound: "+ outbound.count())
+        Log.i("COUNT", "Inbound: "+ inbound.count());
+        Log.i("COUNT", "Outbound: "+ outbound.count());
+
+        val occuranceMap = HashMap<Int, EmojiEntry>()
+        val emojiCompatInstance = EmojiCompat.get()
+
+        for(inText in inbound){
+            val processed = emojiCompatInstance.process(inText, 0, inText.length-1, Integer.MAX_VALUE, EmojiCompat.REPLACE_STRATEGY_ALL)
+            if(processed is Spannable){
+                val spans = processed.getSpans(0, processed.length, EmojiSpan::class.java)
+                for (span in spans){
+                    var emojiText = processed.subSequence(processed.getSpanStart(span), processed.getSpanEnd(span))
+                    if(!occuranceMap.containsKey(span.metadata.id)) {
+                        occuranceMap[span.metadata.id] = EmojiEntry(span, emojiText);
+                    }
+                    occuranceMap[span.metadata.id]!!.CountIngoing++
+                }
+            }
+        }
+
+        for(outText in outbound){
+            val processed = emojiCompatInstance.process(outText, 0, outText.length-1, Integer.MAX_VALUE, EmojiCompat.REPLACE_STRATEGY_ALL)
+            if(processed is Spannable){
+                val spans = processed.getSpans(0, processed.length, EmojiSpan::class.java)
+                for (span in spans){
+                    var emojiText = processed.subSequence(processed.getSpanStart(span), processed.getSpanEnd(span))
+                    if(!occuranceMap.containsKey(span.metadata.id)) {
+                        occuranceMap[span.metadata.id] = EmojiEntry(span, emojiText);
+                    }
+                    occuranceMap[span.metadata.id]!!.CountOutgoing++
+                }
+            }
+        }
+        Log.i("COUNT", "#Different emojies used: "+occuranceMap.size)
+        return occuranceMap.values.sortedByDescending { it.CountOutgoing+it.CountIngoing }
     }
 
+    private fun populateResultView(result: List<EmojiEntry>) {
+        val ingoingResult = SpannableStringBuilder()
+        val outgoingResult = SpannableStringBuilder()
+
+        for(entry in result){
+            ingoingResult.appendLine(entry.EmojiText.toString()+": " + entry.CountIngoing)
+            outgoingResult.appendLine(entry.EmojiText.toString()+": " + entry.CountOutgoing)
+        }
+
+        analysisPanel1.text = ingoingResult;
+        analysisPanel2.text = outgoingResult;
+    }
 }

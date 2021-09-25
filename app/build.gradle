@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "com.niproblema.emojicount"
@@ -32,6 +32,9 @@ android {
 }
 
 dependencies {
+    def appcompat_version = "1.4.0-alpha03"
+    def emoji2_version = "1.0.0-beta01"
+
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
@@ -42,8 +45,15 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     // Libs
+    /// Permissions lib
     implementation 'com.karumi:dexter:6.2.2'
-
+    /// App compat for the emoji
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
+    implementation "androidx.emoji2:emoji2:$emoji2_version"
+    implementation "androidx.emoji2:emoji2-views:$emoji2_version"
+    implementation "androidx.emoji2:emoji2-views-helper:$emoji2_version"
+    implementation "androidx.emoji2:emoji2-bundled:$emoji2_version"
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
