@@ -138,7 +138,15 @@ class MainActivity : AppCompatActivity() {
         if (dataCursor != null) {
             if (dataCursor.moveToFirst()) {
                 do {
-                    convoAddresses.add(getContactByRecipientId( dataCursor.getString(dataCursor.getColumnIndex("recipient_ids")).toLong()))
+                    // String id of the recipient, but might also contains multiple, if conversing with multiple contacts.
+                    var recipientsStr =dataCursor.getString(dataCursor.getColumnIndex("recipient_ids"));
+                    var mergedConvo = recipientsStr
+                        .split(" ")
+                        .map { it.toLong() }
+                        .map { getContactByRecipientId(it) }
+                        .joinToString("+")
+
+                    convoAddresses.add(mergedConvo)
                     threadIDs.add(dataCursor.getString(dataCursor.getColumnIndex(Telephony.Sms._ID)))
                 } while (dataCursor.moveToNext())
             } else if (manual) {
